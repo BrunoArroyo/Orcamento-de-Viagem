@@ -1,5 +1,6 @@
 # importando componentes
 from tkinter import Tk
+from tkinter import ttk
 from tkinter import StringVar
 from tkinter import ttk
 from tkinter import messagebox
@@ -162,9 +163,6 @@ def preencher_tabela():
 
     tree = ttk.Treeview(frame_tabela, selectmode="extended", columns=tabela_head, show="headings")
     tree.grid(column=0, row=0, sticky='nsew')
-    # Frame adicional para conter a barra de rolagem vertical
-    frame_vsb = Frame(frame_tabela, bg=co0)
-    frame_vsb.grid(column=1, row=0, sticky='ns')
     # barra de rolagem lateral
     vsb = ttk.Scrollbar(frame_tabela, orient="vertical", command=tree.yview)
     vsb.grid(column=1, row=0, sticky='ns')
@@ -191,6 +189,9 @@ def preencher_tabela():
 grafico_pie()
 preencher_tabela()
 Totais()
+
+style.theme_use("classic")
+style.configure("Treeview", highlihtthickness=0, bd=0, font=('Input', 9))
 
 janela.mainloop()
 
