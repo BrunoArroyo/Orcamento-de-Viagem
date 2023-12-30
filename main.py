@@ -50,14 +50,14 @@ frameTopo.grid(row=0, column=0)
 frameCentral = Frame(janela, width=1043, height=290, bg=co0, padx=10)
 frameCentral.grid(row=1, column=0)
 
-frame_esquerda = Frame(frameCentral, width=250, height=290, bg=co12, pady=0, relief="raised")
-frame_esquerda.place(x=0, y=5)
+frame_esquerda = Frame(frameCentral, width=255, height=290, bg=co12, pady=0, relief="raised")
+frame_esquerda.place(x=-10, y=5)
 
 frame_direita = Frame(frameCentral, width=630, height=290, bg=co0, pady=0, relief="raised")
 frame_direita.place(x=250, y=5)
 
-frameBaixo = Frame(janela, width=820, height=300, bg=co0)
-frameBaixo.grid(row=2, column=0, pady=0, padx=10, sticky='NESW')
+frameBaixo = Frame(janela, width=840, height=300, bg=co0)
+frameBaixo.grid(row=2, column=0, pady=0, padx=0, sticky='NESW')
 
 # Colocando a Logo
 
@@ -129,16 +129,67 @@ def grafico_pie():
 
     frame_direita_pie = Frame(frame_direita, width=600, height=290, bg=co0, pady=0, relief="raised")
     frame_direita_pie.place(x=-60, y=-25)
-    l_nome = Label(frame_direita, text="Como estão distribuídas as minhas despesas?", width=60, height=1, anchor='center', padx=2, font=('Verdana 11 '), bg=co14, fg=co0)
+    l_nome = Label(frame_direita, text="Como estão distribuídas as minhas despesas?", width=60, height=1, anchor='center', padx=2, font=('Verdana', 11), bg=co14, fg=co0)
     l_nome.place(x=0, y=1)
     
     canva_categoria = FigureCanvasTkAgg(figura, frame_direita_pie)
     canva_categoria.get_tk_widget().grid(row=0,column=0,padx=0)
 
-    
+# grafico
+def grafico():
+    global frame_tabela
+    l_nome = Label(frameBaixo, text="Quais são as minhas despesas?", width=87, height=1, anchor='nw', padx=10, font=('Source Code Pro', 11), bg=co14, fg=co0)    
+    l_nome.grid(row=0, column=0, columnspan=6, pady=0, padx=0)
+
+    frame_tabela = Frame(frameBaixo, width=330, height=250, bg=co12)
+    frame_tabela.grid(row=1, column=0, pady=0, padx=3)
+
+    frame_operacoes = Frame(frameBaixo, width=220, height=250, bg=co12)
+    frame_operacoes.grid(row=1, column=1, pady=0, padx=3)
+
+    frame_configuracao = Frame(frameBaixo, width=235, height=250, bg=co12)
+    frame_configuracao.grid(row=1, column=2, pady=0, padx=3)
+
+grafico()
+# funcao para atribuir dados a tabela
+def preencher_tabela():
+
+    tabela_head = ['id', 'tipo', 'descrição', 'total']
+
+    lista_itens = ['1','ddd','dddddd','122'], ['1','ddd','dddddd','122']
+
+    global frame_tabela, tree
+
+    tree = ttk.Treeview(frame_tabela, selectmode="extended", columns=tabela_head, show="headings")
+    tree.grid(column=0, row=0, sticky='nsew')
+    # Frame adicional para conter a barra de rolagem vertical
+    frame_vsb = Frame(frame_tabela, bg=co0)
+    frame_vsb.grid(column=1, row=0, sticky='ns')
+    # barra de rolagem lateral
+    vsb = ttk.Scrollbar(frame_tabela, orient="vertical", command=tree.yview)
+    vsb.grid(column=1, row=0, sticky='ns')
+    # barra de rolagem horizontal
+    hsb = ttk.Scrollbar(frame_tabela, orient="horizontal", command=tree.xview)
+    hsb.grid(column=0, row=1, sticky='ew')
+
+    tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+
+    hd=["nw","nw","center","e","e"]
+    h=[20, 90, 120, 90, 70]
+    n=0
+
+    for col in tabela_head:
+        tree.heading(col, text=col.title(), anchor='center')
+        tree.column(col, width=h[n], anchor=hd[n])
+
+        n+=1
+
+    for item in lista_itens:
+        tree.insert('', 'end', values=item)
 
 
 grafico_pie()
+preencher_tabela()
 Totais()
 
 janela.mainloop()
