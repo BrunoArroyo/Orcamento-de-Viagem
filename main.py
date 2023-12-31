@@ -6,6 +6,8 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import Frame
 from tkinter import Label
+from tkinter import Entry
+from tkinter import Button
 from PIL import Image
 from PIL import ImageTk
 from matplotlib.figure import Figure
@@ -130,7 +132,7 @@ def grafico_pie():
 
     frame_direita_pie = Frame(frame_direita, width=600, height=290, bg=co0, pady=0, relief="raised")
     frame_direita_pie.place(x=-60, y=-25)
-    l_nome = Label(frame_direita, text="Como estão distribuídas as minhas despesas?", width=60, height=1, anchor='center', padx=2, font=('Verdana', 11), bg=co14, fg=co0)
+    l_nome = Label(frame_direita, text="Como estão distribuídas as minhas despesas?", width=60, height=1, anchor='center', padx=2, font=('Source Code Pro', 11), bg=co14, fg=co0)
     l_nome.place(x=0, y=1)
     
     canva_categoria = FigureCanvasTkAgg(figura, frame_direita_pie)
@@ -138,7 +140,7 @@ def grafico_pie():
 
 # grafico
 def grafico():
-    global frame_tabela
+    global frame_tabela, frame_operacoes, frame_configuracao
     l_nome = Label(frameBaixo, text="Quais são as minhas despesas?", width=87, height=1, anchor='nw', padx=10, font=('Source Code Pro', 11), bg=co14, fg=co0)    
     l_nome.grid(row=0, column=0, columnspan=6, pady=0, padx=0)
 
@@ -185,9 +187,52 @@ def preencher_tabela():
     for item in lista_itens:
         tree.insert('', 'end', values=item)
 
-
-grafico_pie()
 preencher_tabela()
+
+# Configuracoes dos botões da Despesas
+
+l_info = Label(frame_operacoes, text="Inseria despesas abaixo:", height=1, anchor='nw', font=('Source Code Pro', 10, 'bold'), bg=co1, fg=co4)
+l_info.place(x=10, y=10)
+
+l_categoria = Label(frame_operacoes, text='Categoria', anchor='nw', font=('Source Code Pro', 10), bg=co1, fg=co4)
+l_categoria.place(x=10, y=40)
+
+# Definindo as categorias
+
+categorias = ['Transporte', 'Arrendamento', 'Alimentacao', 'Entertainment', 'Outros']
+
+combo_categoria_despesas = ttk.Combobox(frame_operacoes, width=12, font=('Source Code Pro', 10))
+combo_categoria_despesas['values'] = (categorias)
+combo_categoria_despesas.place(x=95, y=39)
+
+l_descricao = Label(frame_operacoes, text="Descrição", anchor='nw', font=('Source Code Pro', 10), bg=co1, fg=co4)
+l_descricao.place(x=10, y=70)
+e_descricao = Entry(frame_operacoes, width=19, justify='left', relief='solid')
+e_descricao.place(x=95, y=71)
+
+l_valor_quantia = Label(frame_operacoes, text="Quantia", width=9, height=1, anchor='nw', font=('Source Code Pro', 10), bg=co1, fg=co4)
+l_valor_quantia.place(x=10, y=120)
+e_valor_despesa = Entry(frame_operacoes, width=19, justify='left', relief='solid')
+e_valor_despesa.place(x=95, y=121)
+
+# Colocando o botão inserir
+
+img_add_despesas = Image.open('add.png')
+img_add_despesas = img_add_despesas.resize((17,17))
+img_add_despesas = ImageTk.PhotoImage(img_add_despesas)
+botao_inserir_despesas = Button(frame_operacoes, command=preencher_tabela, image=img_add_despesas, compound='left', anchor='nw', text="Adicionar".upper(), width=100, overrelief='ridge', font=('Source Code Pro', 7, 'bold'), bg=co1, fg=co0)
+botao_inserir_despesas.place(x=100, y=151)
+
+# Colocando componente para atualizar o valor disponível
+
+l_descricao2 = Label(frame_configuracao, text="Atualizar a quantia total", height=1, anchor='nw', font=('Source Code Pro', 10), bg=co1, fg=co4)
+l_descricao2.place(x=10, y=10)
+
+l_valor_quantia = Label(frame_configuracao, text="Quantia total", height=1, anchor='nw', font=('Source Code Pro', 10), bg=co1, fg=co4)
+l_valor_quantia.place(x=10, y=40)
+e_valor_quantia = Entry(frame_configuracao, width=15, justify='left', relief='solid')
+e_valor_quantia.place(x=125, y=41)
+grafico_pie()
 Totais()
 
 style.theme_use("classic")
