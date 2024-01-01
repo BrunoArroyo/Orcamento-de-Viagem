@@ -232,6 +232,30 @@ l_valor_quantia = Label(frame_configuracao, text="Quantia total", height=1, anch
 l_valor_quantia.place(x=10, y=40)
 e_valor_quantia = Entry(frame_configuracao, width=15, justify='left', relief='solid')
 e_valor_quantia.place(x=125, y=41)
+
+# Colocando o botão atualizar
+
+img_atualizar_quantia = Image.open('update.png')
+img_atualizar_quantia = img_atualizar_quantia.resize((17,17))
+img_atualizar_quantia = ImageTk.PhotoImage(img_atualizar_quantia)
+botao_inserir_quantia = Button(frame_configuracao, command=preencher_tabela, image=img_atualizar_quantia, compound='left', anchor='nw', text="Atualizar".upper(), width=85, overrelief='ridge', font=('Source Code Pro', 7, 'bold'), bg=co1, fg=co0)
+botao_inserir_quantia.place(x=125, y=70)
+
+# Componente de exclusão
+
+l_excluir = Label(frame_configuracao, text="Excluir linha", anchor='nw', font=('Source Code Pro', 10, 'bold'), bg=co1, fg=co4)
+l_excluir.place(x=10, y=120)
+
+# Colocando botão para exclusão
+
+img_delete = Image.open('delete.png')
+img_delete = img_delete.resize((20, 20))
+img_delete = ImageTk.PhotoImage(img_delete)
+botao_deletar = Button(frame_configuracao, image=img_delete, compound='left', anchor='nw', text='Deletar'.upper(), width=85, overrelief='ridge', font=('Source Code Pro', 7), bg=co1, fg=co0)
+botao_deletar.place(x=125, y=120)
+
+
+
 grafico_pie()
 Totais()
 
