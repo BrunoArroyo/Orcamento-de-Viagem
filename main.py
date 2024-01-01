@@ -12,7 +12,10 @@ from PIL import Image
 from PIL import ImageTk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from view import obter_valor_total
+from view import atualizar_quantia_total
 import matplotlib.pyplot as plt
+
 
 # cores
 
@@ -79,6 +82,7 @@ app_logo.place(x=320, y=-4)
 # Editando o frame esquerdo dentro do frame central
 
 def Totais():
+    global valor_total, l_orcamento
     l_nome = Label(frame_esquerda, text="Orçamentos e despesas", width=30, height=1, anchor='nw', font=('Source Code Pro', 11), bg=co14, fg=co0)
     l_nome.place(x=0, y=0)
     
@@ -87,7 +91,7 @@ def Totais():
     l_total_orcamento = Label(frame_esquerda, text='Orçamento Total', anchor='nw', font=('Source Code Pro', 10), bg=co16, fg=co0)
     l_total_orcamento.place(x=10, y=50)
 
-    valor_total = 10000
+    valor_total = obter_valor_total()
 
     l_orcamento = Label(frame_esquerda, text='${:,.2f}'.format(valor_total), width=25, anchor='nw', font=('Input', 12), bg=co1, fg=co4)
     l_orcamento.place(x=10, y=80)
@@ -233,12 +237,22 @@ l_valor_quantia.place(x=10, y=40)
 e_valor_quantia = Entry(frame_configuracao, width=15, justify='left', relief='solid')
 e_valor_quantia.place(x=125, y=41)
 
+def obter_valor():
+    valor_digitado = e_valor_quantia.get()
+    try:
+        valor_digitado = float(valor_digitado)
+        atualizar_quantia_total([valor_digitado, 1])
+        Totais()
+    except ValueError as e:
+        mensagem_erro = f"Erro: {str(e)}"
+        messagebox.showerror("Erro", mensagem_erro)
+
 # Colocando o botão atualizar
 
 img_atualizar_quantia = Image.open('update.png')
 img_atualizar_quantia = img_atualizar_quantia.resize((17,17))
 img_atualizar_quantia = ImageTk.PhotoImage(img_atualizar_quantia)
-botao_inserir_quantia = Button(frame_configuracao, command=preencher_tabela, image=img_atualizar_quantia, compound='left', anchor='nw', text="Atualizar".upper(), width=85, overrelief='ridge', font=('Source Code Pro', 7, 'bold'), bg=co1, fg=co0)
+botao_inserir_quantia = Button(frame_configuracao, command=obter_valor, image=img_atualizar_quantia, compound='left', anchor='nw', text="Atualizar".upper(), width=85, overrelief='ridge', font=('Source Code Pro', 7, 'bold'), bg=co1, fg=co0)
 botao_inserir_quantia.place(x=125, y=70)
 
 # Componente de exclusão
