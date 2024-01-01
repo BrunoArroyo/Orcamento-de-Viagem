@@ -40,9 +40,21 @@ colors = ['#5588bb', '#66bbbb','#99bb55', '#ee9944', '#444466', '#bb5555']
 
 # criando a tela principal
 
+def centralizar_janela(janela, largura, altura):
+    largura_tela = janela.winfo_screenwidth()
+    altura_tela = janela.winfo_screenheight()
+
+    pos_x = (largura_tela - largura) // 2
+    pos_y = (altura_tela - altura) // 2
+
+    janela.geometry(f"{largura}x{altura}+{pos_x}+{pos_y}")
+
 janela = Tk()
 janela.title("")
-janela.geometry('820x610')
+largura_janela = 820
+altura_janela = 610
+# Centralizar a janela
+centralizar_janela(janela, largura_janela, altura_janela)
 janela.configure(background=co1)
 janela.resizable(width=False, height=False)
 
