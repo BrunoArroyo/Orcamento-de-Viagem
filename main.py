@@ -15,6 +15,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from view import obter_valor_total
 from view import atualizar_quantia_total
 import matplotlib.pyplot as plt
+import sqlite3
 
 
 # cores
@@ -170,12 +171,23 @@ def grafico():
     frame_configuracao.grid(row=1, column=2, pady=0, padx=3)
 
 grafico()
+
+# funcao para puxar os dados da tabela despesas
+
+def obter_despesas_do_bd():
+    con = sqlite3.connect('dados.db')
+    cur = con.cursor()
+    cur.execute("SELECT id, categoria, descricao, valor FROM Despesas")
+    despesas = cur.fetchall()
+    con.close()
+    return despesas
+
 # funcao para atribuir dados a tabela
 def preencher_tabela():
 
     tabela_head = ['id', 'tipo', 'descrição', 'total']
 
-    lista_itens = ['1','ddd','dddddd','122'], ['1','ddd','dddddd','122']
+    lista_itens = obter_despesas_do_bd()
 
     global frame_tabela, tree
 
@@ -200,9 +212,10 @@ def preencher_tabela():
 
         n+=1
 
-    for item in lista_itens:
-        tree.insert('', 'end', values=item)
-
+    for despesa in lista_itens:
+        total = despesa[3] 
+        h.append(total)
+        tree.insert('', 'end', values=despesa)
 preencher_tabela()
 
 # Configuracoes dos botões da Despesas
