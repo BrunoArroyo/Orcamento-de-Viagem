@@ -244,12 +244,35 @@ l_valor_quantia.place(x=10, y=120)
 e_valor_despesa = Entry(frame_operacoes, width=19, justify='left', relief='solid')
 e_valor_despesa.place(x=95, y=121)
 
+# Criando funcao para inserção
+
+def inserir_tabela_despesas():
+    # Obtendo os valores dos widgets
+    categoria = combo_categoria_despesas.get()
+    descricao = e_descricao.get()
+    valor = e_valor_despesa.get()
+
+    # Verificando se todos os campos estão preenchidos
+    if categoria and descricao and valor:
+        # Conectando ao banco de dados
+        con = sqlite3.connect('dados.db')
+
+        # Inserindo os valores na tabela de Despesas
+        with con:
+            cur = con.cursor()
+            cur.execute("INSERT INTO Despesas (categoria, descricao, valor) VALUES (?, ?, ?)", (categoria, descricao, valor))
+
+        # Limpando os campos após a inserção
+        combo_categoria_despesas.set('')
+        e_descricao.delete(0, 'end')
+        e_valor_despesa.delete(0, 'end')
+
 # Colocando o botão inserir
 
 img_add_despesas = Image.open('add.png')
 img_add_despesas = img_add_despesas.resize((17,17))
 img_add_despesas = ImageTk.PhotoImage(img_add_despesas)
-botao_inserir_despesas = Button(frame_operacoes, command=preencher_tabela, image=img_add_despesas, compound='left', anchor='nw', text="Adicionar".upper(), width=100, overrelief='ridge', font=('Source Code Pro', 7, 'bold'), bg=co1, fg=co0)
+botao_inserir_despesas = Button(frame_operacoes, command=inserir_tabela_despesas(), image=img_add_despesas, compound='left', anchor='nw', text="Adicionar".upper(), width=100, overrelief='ridge', font=('Source Code Pro', 7, 'bold'), bg=co1, fg=co0)
 botao_inserir_despesas.place(x=100, y=151)
 
 # Colocando componente para atualizar o valor disponível
