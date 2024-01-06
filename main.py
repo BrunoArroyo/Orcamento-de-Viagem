@@ -2,12 +2,12 @@
 from tkinter import Tk
 from tkinter import ttk
 from tkinter import StringVar
-from tkinter import ttk
 from tkinter import messagebox
 from tkinter import Frame
 from tkinter import Label
 from tkinter import Entry
 from tkinter import Button
+from tkinter import filedialog
 from PIL import Image
 from PIL import ImageTk
 from matplotlib.figure import Figure
@@ -17,8 +17,12 @@ from view import atualizar_quantia_total
 from view import inserir_despesa
 from view import visualizar_quantia_despesas
 from view import apagar_linha_despesa
+from view import limpar_tabela_despesas
+from view import dados_tabela_despesas
+from view import exportar_planilha
 import matplotlib.pyplot as plt
 import sqlite3
+import pandas as pd
 
 
 # cores
@@ -88,7 +92,7 @@ app_.place(x=0, y=0)
 
 # Inserindo a imagem
 
-app_img = Image.open('airplane3.png')
+app_img = Image.open('img/airplane3.png')
 app_img = app_img.resize((45,45))
 app_img = ImageTk.PhotoImage(app_img)
 
@@ -195,9 +199,9 @@ l_categoria.place(x=10, y=40)
 
 # Definindo as categorias
 
-categorias = ['Transporte', 'Arrendamento', 'Alimentacao', 'Entertainment', 'Outros']
+categorias = ['Transporte', 'Acomodação', 'Alimentação', 'Entretenimento', 'Seguro Viagem', 'Taxas', 'Outros']
 
-combo_categoria_despesas = ttk.Combobox(frame_operacoes, width=12, font=('Source Code Pro', 10))
+combo_categoria_despesas = ttk.Combobox(frame_operacoes, width=12, font=('Source Code Pro', 10), state='readonly')
 combo_categoria_despesas['values'] = (categorias)
 combo_categoria_despesas.place(x=95, y=39)
 
@@ -283,11 +287,11 @@ def inserir_tabela_despesas():
 
 # Colocando o botão inserir
 
-img_add_despesas = Image.open('add.png')
+img_add_despesas = Image.open('img/add.png')
 img_add_despesas = img_add_despesas.resize((17,17))
 img_add_despesas = ImageTk.PhotoImage(img_add_despesas)
 botao_inserir_despesas = Button(frame_operacoes, command=inserir_tabela_despesas, image=img_add_despesas, compound='left', anchor='nw', text="Adicionar".upper(), width=195, overrelief='ridge', font=('Source Code Pro', 7, 'bold'), bg=co1, fg=co0)
-botao_inserir_despesas.place(x=10, y=131)
+botao_inserir_despesas.place(x=10, y=128)
 
 # Colocando componente para atualizar o valor disponível
 
@@ -310,10 +314,11 @@ def obter_valor():
     except ValueError as e:
         mensagem_erro = f"Erro: {str(e)}"
         messagebox.showerror("Erro", mensagem_erro)
+    e_valor_quantia.delete(0, 'end')
 
 # Colocando o botão atualizar
 
-img_atualizar_quantia = Image.open('update.png')
+img_atualizar_quantia = Image.open('img/update.png')
 img_atualizar_quantia = img_atualizar_quantia.resize((17,17))
 img_atualizar_quantia = ImageTk.PhotoImage(img_atualizar_quantia)
 botao_inserir_quantia = Button(frame_configuracao, command=obter_valor, image=img_atualizar_quantia, compound='left', anchor='nw', text="Atualizar".upper(), width=85, overrelief='ridge', font=('Source Code Pro', 7, 'bold'), bg=co1, fg=co0)
@@ -321,8 +326,8 @@ botao_inserir_quantia.place(x=125, y=70)
 
 # Componente de exclusão
 
-l_excluir = Label(frame_operacoes, text="Excluir linha selecionada", anchor='nw', font=('Source Code Pro', 10), bg=co1, fg=co4)
-l_excluir.place(x=10, y=180)
+l_excluir = Label(frame_operacoes, text="Opções de Exclusão:", anchor='nw', font=('Source Code Pro', 8, 'bold'), bg=co1, fg=co4)
+l_excluir.place(x=10, y=157)
 
 # função para o botão de exclusão
 
@@ -344,15 +349,51 @@ def apagar_linha_selecionada():
         erro = str(ve)
         print(erro)
 
+# função para limpar lista
+        
+def limpar_lista():
+    dados = dados_tabela_despesas()
+    
+    if not dados:  # Verifica se dados está vazio (uma lista vazia)
+        mensagem_erro = "Erro: Não há nada na tabela para limpar"
+        messagebox.showerror("Erro", mensagem_erro)
+        return
+    else:
+        limpar_tabela_despesas()
+        preencher_tabela()
+        Totais()
 
-# Colocando botão para exclusão
 
-img_delete = Image.open('delete.png')
+
+# Colocando botões para exclusão
+
+img_delete = Image.open('img/delete.png')
 img_delete = img_delete.resize((20, 20))
 img_delete = ImageTk.PhotoImage(img_delete)
-botao_deletar = Button(frame_operacoes, command=apagar_linha_selecionada, image=img_delete, compound='left', anchor='nw', text='Deletar'.upper(), width=195, overrelief='ridge', font=('Source Code Pro', 7), bg=co1, fg=co0)
-botao_deletar.place(x=10, y=210)
+botao_deletar = Button(frame_operacoes, command=apagar_linha_selecionada, image=img_delete, compound='left', anchor='nw', text='Deletar linha selecionada'.upper(), width=195, overrelief='ridge', font=('Source Code Pro', 7), bg=co1, fg=co0)
+botao_deletar.place(x=10, y=183)
 
+img_limpar = Image.open('img/vassoura.png')
+img_limpar = img_limpar.resize((20, 20))
+img_limpar = ImageTk.PhotoImage(img_limpar)
+botao_limpar = Button(frame_operacoes, command=limpar_lista, image=img_limpar, compound='left', anchor='nw', text='Limpar lista'.upper(), width=195, overrelief='ridge', font=('Source Code Pro', 7), bg=co1, fg=co0)
+botao_limpar.place(x=10, y=213)
+
+# botão para exportar um excel
+
+img_excel = Image.open('img/excel.png')
+img_excel = img_excel.resize((30, 30))
+img_excel = ImageTk.PhotoImage(img_excel)
+botao_excel = Button(frame_configuracao, command=exportar_planilha, image=img_excel, compound='left', anchor='nw', text='Exportar despesas numa planilha'.upper(), width=195, height=30, overrelief='ridge', font=('Source Code Pro', 7), bg=co1, fg=co0)
+botao_excel.place(x=10, y=163)
+
+# botão para baixar gráfico
+
+img_grafico = Image.open('img/grafico.png')
+img_grafico = img_grafico.resize((30, 30))
+img_grafico = ImageTk.PhotoImage(img_grafico)
+botao_grafico = Button(frame_configuracao, image=img_grafico, compound='left', anchor='nw', text='Exportar imagem do gráfico'.upper(), width=195, height=30, overrelief='ridge', font=('Source Code Pro', 7), bg=co1, fg=co0)
+botao_grafico.place(x=10, y=203)
 
 
 
