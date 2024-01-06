@@ -62,13 +62,12 @@ def inserir_despesa(i):
 
 # Apagar segunda linha
         
-def apagar_linha(i):
+def apagar_linha_despesa(i):
     with con:
         cur = con.cursor()
-        query = "DELETE FROM Quantia WHERE ID=?"
+        query = "DELETE FROM Despesas WHERE ID=?"
         cur.execute(query, (i,))
 
-# Somente criei o código acima pois tinha rodado  inserir_quantia duas vezes sem querer
 
 # Obter valor para aplicar na tela do sistema
 def obter_valor_total():

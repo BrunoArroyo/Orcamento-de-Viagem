@@ -16,6 +16,7 @@ from view import obter_valor_total
 from view import atualizar_quantia_total
 from view import inserir_despesa
 from view import visualizar_quantia_despesas
+from view import apagar_linha_despesa
 import matplotlib.pyplot as plt
 import sqlite3
 
@@ -325,13 +326,31 @@ l_excluir.place(x=10, y=180)
 
 # função para o botão de exclusão
 
+def apagar_linha_selecionada():
+    selected_item = tree.selection()
+
+    if not selected_item:
+        # Nenhuma linha selecionada, exiba uma mensagem de aviso
+        mensagem_erro = "Erro: Nenhuma linha selecionada, favor selecionar uma linha da tabela a direita e tentar novamente"
+        messagebox.showerror("Erro", mensagem_erro)
+        return  # Retorna para evitar erros na linha seguinte se nenhum item estiver selecionado
+    
+    id_selecionado = tree.item(selected_item)['values'][0]
+    try:
+        apagar_linha_despesa(id_selecionado)
+        preencher_tabela()
+        Totais()
+    except ValueError as ve:
+        erro = str(ve)
+        print(erro)
+
 
 # Colocando botão para exclusão
 
 img_delete = Image.open('delete.png')
 img_delete = img_delete.resize((20, 20))
 img_delete = ImageTk.PhotoImage(img_delete)
-botao_deletar = Button(frame_operacoes, image=img_delete, compound='left', anchor='nw', text='Deletar'.upper(), width=195, overrelief='ridge', font=('Source Code Pro', 7), bg=co1, fg=co0)
+botao_deletar = Button(frame_operacoes, command=apagar_linha_selecionada, image=img_delete, compound='left', anchor='nw', text='Deletar'.upper(), width=195, overrelief='ridge', font=('Source Code Pro', 7), bg=co1, fg=co0)
 botao_deletar.place(x=10, y=210)
 
 
