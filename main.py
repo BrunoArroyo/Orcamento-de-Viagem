@@ -14,6 +14,8 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from view import obter_valor_total
 from view import atualizar_quantia_total
+from view import inserir_despesa
+from view import visualizar_quantia_despesas
 import matplotlib.pyplot as plt
 import sqlite3
 
@@ -95,7 +97,7 @@ app_logo.place(x=320, y=-4)
 # Editando o frame esquerdo dentro do frame central
 
 def Totais():
-    global valor_total, l_orcamento
+    global valor_total, l_orcamento, valor_despesa
     l_nome = Label(frame_esquerda, text="Orçamentos e despesas", width=30, height=1, anchor='nw', font=('Source Code Pro', 11), bg=co14, fg=co0)
     l_nome.place(x=0, y=0)
     
@@ -114,7 +116,7 @@ def Totais():
     l_total_despesa = Label(frame_esquerda, text='Despesas Totais', anchor='nw', font=('Source Code Pro', 10), bg=co15, fg=co0)
     l_total_despesa.place(x=10, y=120)
 
-    valor_despesa = 10000
+    valor_despesa = visualizar_quantia_despesas()
 
     l_despesa = Label(frame_esquerda, text='${:,.2f}'.format(valor_despesa), width=25, anchor='nw', font=('Input', 12), bg=co1, fg=co4)
     l_despesa.place(x=10, y=150)
@@ -124,7 +126,7 @@ def Totais():
     l_total_restante = Label(frame_esquerda, text='Valores Restantes', anchor='nw', font=('Source Code Pro', 10), bg=co0, fg=co1)
     l_total_restante.place(x=10, y=190)
 
-    valor_restante = 10000
+    valor_restante = valor_total - valor_despesa
 
     l_restante = Label(frame_esquerda, text='${:,.2f}'.format(valor_restante), width=25, anchor='nw', font=('Input', 12), bg=co1, fg=co4)
     l_restante.place(x=10, y=220)
@@ -182,6 +184,32 @@ def obter_despesas_do_bd():
     con.close()
     return despesas
 
+# Configuracoes dos botões da Despesas
+
+l_info = Label(frame_operacoes, text="Detalhes da despesa:", height=1, anchor='nw', font=('Source Code Pro', 10, 'bold'), bg=co1, fg=co4)
+l_info.place(x=10, y=10)
+
+l_categoria = Label(frame_operacoes, text='Categoria', anchor='nw', font=('Source Code Pro', 10), bg=co1, fg=co4)
+l_categoria.place(x=10, y=40)
+
+# Definindo as categorias
+
+categorias = ['Transporte', 'Arrendamento', 'Alimentacao', 'Entertainment', 'Outros']
+
+combo_categoria_despesas = ttk.Combobox(frame_operacoes, width=12, font=('Source Code Pro', 10))
+combo_categoria_despesas['values'] = (categorias)
+combo_categoria_despesas.place(x=95, y=39)
+
+l_descricao = Label(frame_operacoes, text="Descrição", anchor='nw', font=('Source Code Pro', 10), bg=co1, fg=co4)
+l_descricao.place(x=10, y=70)
+e_descricao = Entry(frame_operacoes, width=19, justify='left', relief='solid')
+e_descricao.place(x=95, y=71)
+
+l_valor_quantia = Label(frame_operacoes, text="Quantia", width=9, height=1, anchor='nw', font=('Source Code Pro', 10), bg=co1, fg=co4)
+l_valor_quantia.place(x=10, y=100)
+e_valor_despesa = Entry(frame_operacoes, width=19, justify='left', relief='solid')
+e_valor_despesa.place(x=95, y=101)
+
 # funcao para atribuir dados a tabela
 def preencher_tabela():
 
@@ -216,64 +244,49 @@ def preencher_tabela():
         total = despesa[3] 
         h.append(total)
         tree.insert('', 'end', values=despesa)
+
 preencher_tabela()
 
-# Configuracoes dos botões da Despesas
-
-l_info = Label(frame_operacoes, text="Inseria despesas abaixo:", height=1, anchor='nw', font=('Source Code Pro', 10, 'bold'), bg=co1, fg=co4)
-l_info.place(x=10, y=10)
-
-l_categoria = Label(frame_operacoes, text='Categoria', anchor='nw', font=('Source Code Pro', 10), bg=co1, fg=co4)
-l_categoria.place(x=10, y=40)
-
-# Definindo as categorias
-
-categorias = ['Transporte', 'Arrendamento', 'Alimentacao', 'Entertainment', 'Outros']
-
-combo_categoria_despesas = ttk.Combobox(frame_operacoes, width=12, font=('Source Code Pro', 10))
-combo_categoria_despesas['values'] = (categorias)
-combo_categoria_despesas.place(x=95, y=39)
-
-l_descricao = Label(frame_operacoes, text="Descrição", anchor='nw', font=('Source Code Pro', 10), bg=co1, fg=co4)
-l_descricao.place(x=10, y=70)
-e_descricao = Entry(frame_operacoes, width=19, justify='left', relief='solid')
-e_descricao.place(x=95, y=71)
-
-l_valor_quantia = Label(frame_operacoes, text="Quantia", width=9, height=1, anchor='nw', font=('Source Code Pro', 10), bg=co1, fg=co4)
-l_valor_quantia.place(x=10, y=120)
-e_valor_despesa = Entry(frame_operacoes, width=19, justify='left', relief='solid')
-e_valor_despesa.place(x=95, y=121)
-
-# Criando funcao para inserção
+# funcao para a tabela de despesas
 
 def inserir_tabela_despesas():
     # Obtendo os valores dos widgets
-    categoria = combo_categoria_despesas.get()
-    descricao = e_descricao.get()
-    valor = e_valor_despesa.get()
-
+        categoria = combo_categoria_despesas.get()
+        descricao = e_descricao.get()
+        valor = e_valor_despesa.get()
+        
     # Verificando se todos os campos estão preenchidos
-    if categoria and descricao and valor:
-        # Conectando ao banco de dados
-        con = sqlite3.connect('dados.db')
-
-        # Inserindo os valores na tabela de Despesas
-        with con:
-            cur = con.cursor()
-            cur.execute("INSERT INTO Despesas (categoria, descricao, valor) VALUES (?, ?, ?)", (categoria, descricao, valor))
-
-        # Limpando os campos após a inserção
+        try:
+            categoria = str(categoria)
+            descricao = str(descricao)
+            valor = float(valor)
+            i = [categoria, descricao, valor]
+            if categoria and descricao and valor:
+            # Conectando ao banco de dados
+                inserir_despesa(i)
+    
+        except ValueError as e:
+            mensagem_erro = f"Erro: {str(e)}"
+            messagebox.showerror("Erro", mensagem_erro)
+        
+        # Limpando campos após interação
         combo_categoria_despesas.set('')
         e_descricao.delete(0, 'end')
         e_valor_despesa.delete(0, 'end')
+
+        # Colocando valores na tabela
+        preencher_tabela()
+
+        # Atualizando Orçamentos e Despesas
+        Totais()
 
 # Colocando o botão inserir
 
 img_add_despesas = Image.open('add.png')
 img_add_despesas = img_add_despesas.resize((17,17))
 img_add_despesas = ImageTk.PhotoImage(img_add_despesas)
-botao_inserir_despesas = Button(frame_operacoes, command=inserir_tabela_despesas(), image=img_add_despesas, compound='left', anchor='nw', text="Adicionar".upper(), width=100, overrelief='ridge', font=('Source Code Pro', 7, 'bold'), bg=co1, fg=co0)
-botao_inserir_despesas.place(x=100, y=151)
+botao_inserir_despesas = Button(frame_operacoes, command=inserir_tabela_despesas, image=img_add_despesas, compound='left', anchor='nw', text="Adicionar".upper(), width=195, overrelief='ridge', font=('Source Code Pro', 7, 'bold'), bg=co1, fg=co0)
+botao_inserir_despesas.place(x=10, y=131)
 
 # Colocando componente para atualizar o valor disponível
 
@@ -284,6 +297,8 @@ l_valor_quantia = Label(frame_configuracao, text="Quantia total", height=1, anch
 l_valor_quantia.place(x=10, y=40)
 e_valor_quantia = Entry(frame_configuracao, width=15, justify='left', relief='solid')
 e_valor_quantia.place(x=125, y=41)
+
+# função para o botão
 
 def obter_valor():
     valor_digitado = e_valor_quantia.get()
@@ -305,16 +320,20 @@ botao_inserir_quantia.place(x=125, y=70)
 
 # Componente de exclusão
 
-l_excluir = Label(frame_configuracao, text="Excluir linha", anchor='nw', font=('Source Code Pro', 10, 'bold'), bg=co1, fg=co4)
-l_excluir.place(x=10, y=120)
+l_excluir = Label(frame_operacoes, text="Excluir linha selecionada", anchor='nw', font=('Source Code Pro', 10), bg=co1, fg=co4)
+l_excluir.place(x=10, y=180)
+
+# função para o botão de exclusão
+
 
 # Colocando botão para exclusão
 
 img_delete = Image.open('delete.png')
 img_delete = img_delete.resize((20, 20))
 img_delete = ImageTk.PhotoImage(img_delete)
-botao_deletar = Button(frame_configuracao, image=img_delete, compound='left', anchor='nw', text='Deletar'.upper(), width=85, overrelief='ridge', font=('Source Code Pro', 7), bg=co1, fg=co0)
-botao_deletar.place(x=125, y=120)
+botao_deletar = Button(frame_operacoes, image=img_delete, compound='left', anchor='nw', text='Deletar'.upper(), width=195, overrelief='ridge', font=('Source Code Pro', 7), bg=co1, fg=co0)
+botao_deletar.place(x=10, y=210)
+
 
 
 

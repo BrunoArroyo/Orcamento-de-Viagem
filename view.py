@@ -27,12 +27,37 @@ def visualizar_quantia():
         
     return lista_itens
 
+# Visualizar valor das despesas
+
+def visualizar_quantia_despesas():
+    total = 0
+
+    with con:
+        cur = con.cursor()
+        cur.execute("SELECT VALOR FROM Despesas")
+        rows = cur.fetchall()
+
+        for row in rows:
+            valor = row[0]  # Acesse o valor na posição 0 da tupla
+            valor_formatado = float(valor)
+            total += valor_formatado
+
+    return total
+
 # Atualizar quantidade
 
 def atualizar_quantia_total(i):
     with con:
         cur = con.cursor()
         query = "UPDATE Quantia SET VALOR=? WHERE ID=?"
+        cur.execute(query, i)
+
+# Inserir Despesa
+
+def inserir_despesa(i):
+    with con:
+        cur = con.cursor()
+        query = "INSERT INTO Despesas (categoria, descricao, valor) VALUES (?, ?, ?)"
         cur.execute(query, i)
 
 # Apagar segunda linha
@@ -54,4 +79,4 @@ def obter_valor_total():
         return resultado[0] if resultado and resultado[0] is not None else 0.0
     
     
-print(visualizar_quantia())
+print(visualizar_quantia_despesas())
