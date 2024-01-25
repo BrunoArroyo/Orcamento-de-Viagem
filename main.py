@@ -141,8 +141,10 @@ def grafico_pie():
     figura = plt.Figure(figsize=(7, 4), dpi=87)
     ax = figura.add_subplot(111)
 
-    lista_valores = [56,78,45,92]
-    lista_categorias = ['alimentacao', 'transporte', 'Acomodacao', 'Entretenimento']
+    lista_valores = [1]
+    lista_categorias = ['teste']
+
+    
 
     explode = []
     for i in lista_categorias:
