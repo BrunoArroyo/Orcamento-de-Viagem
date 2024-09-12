@@ -18,17 +18,18 @@ def inserir_quantia(i):
 # Visualizar quantia total
 
 def visualizar_quantia():
-    lista_itens = []
+    valor_quantia = 0  # Valor padrão caso não haja resultado
 
     with con:
         cur = con.cursor()
-        cur.execute("SELECT * FROM Quantia")
-        row = cur.fetchall()
+        cur.execute("SELECT valor FROM Quantia LIMIT 1")  # Pegar o primeiro (ou único) valor
+        row = cur.fetchone()
 
-        for i in row:
-            lista_itens.append(i)
-        
-    return lista_itens
+        if row and isinstance(row[0], (int, float)):  # Certificar-se de que o valor é numérico
+            valor_quantia = row[0]
+
+    return valor_quantia
+
 
 # Visualizar valor das despesas
 

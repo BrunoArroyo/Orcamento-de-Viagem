@@ -16,6 +16,7 @@ from view import obter_valor_total
 from view import atualizar_quantia_total
 from view import inserir_despesa
 from view import visualizar_quantia_despesas
+from view import visualizar_quantia
 from view import apagar_linha_despesa
 from view import limpar_tabela_despesas
 from view import dados_tabela_despesas
@@ -136,21 +137,42 @@ def Totais():
     l_restante = Label(frame_esquerda, text='${:,.2f}'.format(valor_restante), width=25, anchor='nw', font=('Input', 12), bg=co1, fg=co4)
     l_restante.place(x=10, y=220)
 
-def grafico_pie():
-    
+    valor_quantia = visualizar_quantia()
+    despesas = obter_despesas_do_bd()
+    grafico_pie(valor_quantia, despesas)
+
+
+def grafico_pie(valor_quantia, despesas):
     figura = plt.Figure(figsize=(7, 4), dpi=87)
     ax = figura.add_subplot(111)
 
-    lista_valores = [1]
-    lista_categorias = ['teste']
+    # Calcular a soma total das despesas
+    total_despesas = sum(despesa[3] for despesa in despesas)
 
-    
+    # Calcular a quantia restante
+    quantia_restante = valor_quantia - total_despesas
 
-    explode = []
-    for i in lista_categorias:
-        explode.append(0.05)
+    # Inicializar as listas de valores e categorias
+    lista_valores = []
+    lista_categorias = []
 
-    ax.pie(lista_valores, explode=explode, wedgeprops=dict(width=0.2), autopct='%1.1f%%', colors=colors,shadow=True, startangle=90, textprops={'color': 'white'})
+    # Adicionar a quantia restante ao gráfico (se for maior que 0)
+    if quantia_restante > 0:
+        lista_valores.append(quantia_restante)
+        lista_categorias.append('Quantia Disponível')
+
+    # Adicionar as despesas ao gráfico
+    for despesa in despesas:
+        descricao_despesa = despesa[2]  # Coluna 'descricao'
+        valor_despesa = despesa[3]  # Coluna 'valor'
+        lista_categorias.append(descricao_despesa)
+        lista_valores.append(valor_despesa)
+
+    # Explode para cada fatia do gráfico
+    explode = [0.05] * len(lista_categorias)
+
+    # Gerar gráfico de pizza
+    ax.pie(lista_valores, explode=explode, wedgeprops=dict(width=0.2), autopct='%1.1f%%', colors=colors, shadow=True, startangle=90, textprops={'color': 'white'})
 
     ax.legend(lista_categorias, loc="center right", bbox_to_anchor=(1.55, 0.50))
 
@@ -160,9 +182,11 @@ def grafico_pie():
     frame_direita_pie.place(x=-60, y=-25)
     l_nome = Label(frame_direita, text="Como estão distribuídas as minhas despesas?", width=60, height=1, anchor='center', padx=2, font=('Source Code Pro', 11), bg=co14, fg=co0)
     l_nome.place(x=0, y=1)
-    
+
     canva_categoria = FigureCanvasTkAgg(figura, frame_direita_pie)
-    canva_categoria.get_tk_widget().grid(row=0,column=0,padx=0)
+    canva_categoria.get_tk_widget().grid(row=0, column=0, padx=0)
+
+
 
 # grafico
 def grafico():
@@ -252,6 +276,10 @@ def preencher_tabela():
         h.append(total)
         tree.insert('', 'end', values=despesa)
 
+    valor_quantia = visualizar_quantia()
+    despesas = obter_despesas_do_bd()
+    grafico_pie(valor_quantia, despesas)
+
 preencher_tabela()
 
 # funcao para a tabela de despesas
@@ -317,6 +345,7 @@ def obter_valor():
         mensagem_erro = f"Erro: {str(e)}"
         messagebox.showerror("Erro", mensagem_erro)
     e_valor_quantia.delete(0, 'end')
+
 
 # Colocando o botão atualizar
 
@@ -399,7 +428,9 @@ botao_grafico.place(x=10, y=203)
 
 
 
-grafico_pie()
+valor_quantia = visualizar_quantia()
+despesas = obter_despesas_do_bd()
+grafico_pie(valor_quantia, despesas)
 Totais()
 
 style.theme_use("classic")
