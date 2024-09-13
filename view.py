@@ -104,7 +104,8 @@ def obter_valor_total():
         cur.execute("SELECT SUM(valor) FROM Quantia")
         resultado = cur.fetchone()
         return resultado[0] if resultado and resultado[0] is not None else 0.0
-     
+
+# abre tela para achar um local e salva uma planilha lá    
 def exportar_planilha():
     dados = dados_tabela_despesas()
 
@@ -126,5 +127,6 @@ def exportar_planilha():
 
         if caminho_do_arquivo:
             df_oficial.to_excel(caminho_do_arquivo, index=False)
+
 
 dados_tabela_despesas()

@@ -8,6 +8,7 @@ from tkinter import Label
 from tkinter import Entry
 from tkinter import Button
 from tkinter import filedialog
+from tkinter import messagebox
 from PIL import Image
 from PIL import ImageTk
 from matplotlib.figure import Figure
@@ -24,7 +25,7 @@ from view import exportar_planilha
 import matplotlib.pyplot as plt
 import sqlite3
 import pandas as pd
-
+import os
 
 # cores
 
@@ -143,6 +144,7 @@ def Totais():
 
 
 def grafico_pie(valor_quantia, despesas):
+    global figura
     figura = plt.Figure(figsize=(7, 4), dpi=87)
     ax = figura.add_subplot(111)
 
@@ -186,7 +188,24 @@ def grafico_pie(valor_quantia, despesas):
     canva_categoria = FigureCanvasTkAgg(figura, frame_direita_pie)
     canva_categoria.get_tk_widget().grid(row=0, column=0, padx=0)
 
+    return figura
 
+# abre tela de busca para achar um local e salva uma imagem do gráfico lá
+def exportar_grafico():
+    # Abrir uma janela de diálogo para salvar o arquivo
+    file_path = filedialog.asksaveasfilename(
+        defaultextension='.png', 
+        filetypes=[("PNG files", "*.png"), ("JPEG files", "*.jpg"), ("All files", "*.*")],
+        title="Salvar gráfico"
+    )
+    
+    # Se o caminho for válido (o usuário não cancelou)
+    if file_path:
+        try:
+            figura.savefig(file_path)  # Exporta a figura para o caminho escolhido
+            messagebox.showinfo("Sucesso", f"Gráfico exportado com sucesso para {os.path.basename(file_path)}")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Ocorreu um erro ao exportar o gráfico: {str(e)}")
 
 # grafico
 def grafico():
@@ -243,42 +262,51 @@ e_valor_despesa.place(x=95, y=101)
 
 # funcao para atribuir dados a tabela
 def preencher_tabela():
-
-    tabela_head = ['id', 'tipo', 'descrição', 'total']
+    # Definir as colunas exibidas (sem a coluna 'id')
+    tabela_head = ['tipo', 'descrição', 'total']
 
     lista_itens = obter_despesas_do_bd()
 
     global frame_tabela, tree
 
-    tree = ttk.Treeview(frame_tabela, selectmode="extended", columns=tabela_head, show="headings")
+    # Criar a Treeview e adicionar a coluna oculta para o ID
+    tree = ttk.Treeview(frame_tabela, selectmode="extended", columns=["id"] + tabela_head, show="headings")
     tree.grid(column=0, row=0, sticky='nsew')
-    # barra de rolagem lateral
+
+    # Barra de rolagem lateral
     vsb = ttk.Scrollbar(frame_tabela, orient="vertical", command=tree.yview)
     vsb.grid(column=1, row=0, sticky='ns')
-    # barra de rolagem horizontal
+
+    # Barra de rolagem horizontal
     hsb = ttk.Scrollbar(frame_tabela, orient="horizontal", command=tree.xview)
     hsb.grid(column=0, row=1, sticky='ew')
 
     tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
 
-    hd=["nw","nw","center","e","e"]
-    h=[20, 90, 120, 90, 70]
-    n=0
+    # Definir os formatos de cabeçalho (ID será oculto)
+    hd = ["nw", "nw", "e"]
+    h = [90, 120, 70]
+    n = 0
 
+    # Configurar os cabeçalhos e tamanhos das colunas
     for col in tabela_head:
         tree.heading(col, text=col.title(), anchor='center')
         tree.column(col, width=h[n], anchor=hd[n])
+        n += 1
 
-        n+=1
+    # Ocultar a coluna de ID
+    tree.column("id", width=0, stretch=False)
+    tree.heading("id", text="", anchor='center')
 
+    # Preencher a tabela com as colunas 'categoria', 'descrição' e 'valor', e armazenar o 'id' de forma oculta
     for despesa in lista_itens:
-        total = despesa[3] 
-        h.append(total)
-        tree.insert('', 'end', values=despesa)
+        tree.insert('', 'end', values=(despesa[0], despesa[1], despesa[2], despesa[3]))
 
+    # Atualizar gráfico
     valor_quantia = visualizar_quantia()
     despesas = obter_despesas_do_bd()
     grafico_pie(valor_quantia, despesas)
+
 
 preencher_tabela()
 
@@ -366,19 +394,22 @@ def apagar_linha_selecionada():
     selected_item = tree.selection()
 
     if not selected_item:
-        # Nenhuma linha selecionada, exiba uma mensagem de aviso
-        mensagem_erro = "Erro: Nenhuma linha selecionada, favor selecionar uma linha da tabela a direita e tentar novamente"
+        # Nenhuma linha selecionada, exibe uma mensagem de aviso
+        mensagem_erro = "Erro: Nenhuma linha selecionada, favor selecionar uma linha da tabela e tentar novamente."
         messagebox.showerror("Erro", mensagem_erro)
-        return  # Retorna para evitar erros na linha seguinte se nenhum item estiver selecionado
+        return  # Evita erro se nenhum item for selecionado
     
+    # Obter o ID da despesa (valores[0] agora contém o ID oculto)
     id_selecionado = tree.item(selected_item)['values'][0]
+
     try:
-        apagar_linha_despesa(id_selecionado)
-        preencher_tabela()
-        Totais()
+        apagar_linha_despesa(id_selecionado)  # Apagar do banco de dados
+        preencher_tabela()  # Atualizar a tabela
+        Totais()  # Atualizar totais
     except ValueError as ve:
         erro = str(ve)
         print(erro)
+
 
 # função para limpar lista
         
@@ -423,14 +454,14 @@ botao_excel.place(x=10, y=163)
 img_grafico = Image.open('img/grafico.png')
 img_grafico = img_grafico.resize((30, 30))
 img_grafico = ImageTk.PhotoImage(img_grafico)
-botao_grafico = Button(frame_configuracao, image=img_grafico, compound='left', anchor='nw', text='Exportar imagem do gráfico'.upper(), width=195, height=30, overrelief='ridge', font=('Source Code Pro', 7), bg=co1, fg=co0)
+botao_grafico = Button(frame_configuracao, command=exportar_grafico, image=img_grafico, compound='left', anchor='nw', text='Exportar imagem do gráfico'.upper(), width=195, height=30, overrelief='ridge', font=('Source Code Pro', 7), bg=co1, fg=co0)
 botao_grafico.place(x=10, y=203)
 
 
 
 valor_quantia = visualizar_quantia()
 despesas = obter_despesas_do_bd()
-grafico_pie(valor_quantia, despesas)
+figura = grafico_pie(valor_quantia, despesas)
 Totais()
 
 style.theme_use("classic")
