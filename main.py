@@ -154,6 +154,12 @@ def grafico_pie(valor_quantia, despesas):
     # Calcular a quantia restante
     quantia_restante = valor_quantia - total_despesas
 
+    # Verificar se o valor total das despesas ultrapassou o orçamento
+    if quantia_restante < 0:
+        # Exibir uma mensagem de aviso
+        messagebox.showwarning("Atenção", "O valor total das despesas ultrapassou o orçamento de viagem!")
+        quantia_restante = 0  # Define quantia restante como 0 para evitar valores negativos no gráfico
+
     # Inicializar as listas de valores e categorias
     lista_valores = []
     lista_categorias = []
@@ -189,6 +195,7 @@ def grafico_pie(valor_quantia, despesas):
     canva_categoria.get_tk_widget().grid(row=0, column=0, padx=0)
 
     return figura
+
 
 # abre tela de busca para achar um local e salva uma imagem do gráfico lá
 def exportar_grafico():
