@@ -142,7 +142,6 @@ def Totais():
     despesas = obter_despesas_do_bd()
     grafico_pie(valor_quantia, despesas)
 
-
 def grafico_pie(valor_quantia, despesas):
     global figura
     figura = plt.Figure(figsize=(7, 4), dpi=87)
@@ -195,7 +194,6 @@ def grafico_pie(valor_quantia, despesas):
     canva_categoria.get_tk_widget().grid(row=0, column=0, padx=0)
 
     return figura
-
 
 # abre tela de busca para achar um local e salva uma imagem do gráfico lá
 def exportar_grafico():
@@ -314,7 +312,6 @@ def preencher_tabela():
     despesas = obter_despesas_do_bd()
     grafico_pie(valor_quantia, despesas)
 
-
 preencher_tabela()
 
 # funcao para a tabela de despesas
@@ -381,7 +378,6 @@ def obter_valor():
         messagebox.showerror("Erro", mensagem_erro)
     e_valor_quantia.delete(0, 'end')
 
-
 # Colocando o botão atualizar
 
 img_atualizar_quantia = Image.open('img/update.png')
@@ -417,7 +413,6 @@ def apagar_linha_selecionada():
         erro = str(ve)
         print(erro)
 
-
 # função para limpar lista
         
 def limpar_lista():
@@ -431,8 +426,6 @@ def limpar_lista():
         limpar_tabela_despesas()
         preencher_tabela()
         Totais()
-
-
 
 # Colocando botões para exclusão
 
@@ -463,8 +456,6 @@ img_grafico = img_grafico.resize((30, 30))
 img_grafico = ImageTk.PhotoImage(img_grafico)
 botao_grafico = Button(frame_configuracao, command=exportar_grafico, image=img_grafico, compound='left', anchor='nw', text='Exportar imagem do gráfico'.upper(), width=195, height=30, overrelief='ridge', font=('Source Code Pro', 7), bg=co1, fg=co0)
 botao_grafico.place(x=10, y=203)
-
-
 
 valor_quantia = visualizar_quantia()
 despesas = obter_despesas_do_bd()

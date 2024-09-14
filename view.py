@@ -30,7 +30,6 @@ def visualizar_quantia():
 
     return valor_quantia
 
-
 # Visualizar valor das despesas
 
 def visualizar_quantia_despesas():
@@ -95,8 +94,6 @@ def limpar_tabela_despesas():
         query = "DELETE FROM Despesas"
         cur.execute(query)
 
-
-
 # Obter valor para aplicar na tela do sistema
 def obter_valor_total():
     with con:
@@ -127,6 +124,5 @@ def exportar_planilha():
 
         if caminho_do_arquivo:
             df_oficial.to_excel(caminho_do_arquivo, index=False)
-
 
 dados_tabela_despesas()
